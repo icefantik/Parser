@@ -1,12 +1,32 @@
 #include "href.h"
 
-/*
-boolean downloadLink(char* url) 
+size_t write_data(void *ptr, size_t size, size_t nmemb, FILE *stream) {
+    size_t written = fwrite(ptr, size, nmemb, stream);
+    return written;
+}
+
+void downloadLinks() 
 {
 	CURL *curl;
-	CURLcode 		
+   	FILE *fp;
+    	CURLcode res;
+	char path[5000];
+    	char *url = "https://stackoverflow.com/";
+    	char outfilename[FILENAME_MAX] = "C:\\bbb.txt";
+    	curl = curl_easy_init();
+    	//for (int i = 0; i < ; ++i) {
+		sprintf(path, "%s/%s", DOWNDIR, outfilename);
+        	fp = fopen(path,"wb");
+        	curl_easy_setopt(curl, CURLOPT_URL, url);
+        	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data);
+        	curl_easy_setopt(curl, CURLOPT_WRITEDATA, fp);
+        	res = curl_easy_perform(curl);
+        	
+        	curl_easy_cleanup(curl);
+        	fclose(fp);
+	//}
 }
-*/
+
 
 int strHrefIndex(char* strFromHTML, char* href)
 {
@@ -16,7 +36,7 @@ int strHrefIndex(char* strFromHTML, char* href)
 	{
 		for (j = i, k = 0, length = strlen(href)-1; k <= length && strFromHTML[j] == href[k]; ++j, ++k) {
 			if (k > 0 && k == tmp) {
-				return j + 3;
+				return j + (strlen(TAGHREF) - 1);
 			}
 		}
 	}
@@ -30,11 +50,11 @@ void rdHtmlFile(char* htmlName)
 	char strFromHTML[LENHTML];
 	while(fgets(strFromHTML, sizeof(strFromHTML), file))
 	{
-		if (strstr(strFromHTML, "href") != NULL) {
-			int tmp = strHrefIndex(strFromHTML, "href"), indexLink = 0;
+		if (strstr(strFromHTML, TAGHREF) != NULL) {
+			int hrefStartIndex = strHrefIndex(strFromHTML, TAGHREF), indexLink = 0;
 			char link[MAXLINK];
-			while (strFromHTML[tmp] != '\"') {
-				link[indexLink++] = strFromHTML[tmp++];
+			while (strFromHTML[hrefStartIndex] != '\"') {
+				link[indexLink++] = strFromHTML[hrefStartIndex++];
 			}
 			printf("%s\n", link);
 		}

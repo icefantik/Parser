@@ -7,7 +7,7 @@ void selcFile()
 	struct dirent *ent;
 	struct stat st;
 	char cwd[MAXDIR];
-	char path[MAXDIR];
+	char* path = malloc(MAXDIR * sizeof(char));
 	getcwd(cwd, MAXDIR);
 	if ((dir = opendir(cwd)) != NULL) {
 		while ((ent = readdir(dir)) != NULL) {
@@ -20,7 +20,7 @@ void selcFile()
 					}
 				}
 			} else {
-				printf("cannot access path: %s", path);
+				printf("cannot access path: %s\n", path);
 			}
 		}
 	}
