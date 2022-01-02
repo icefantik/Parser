@@ -1,4 +1,10 @@
 #include "href.h"
+#define FEXTEN 101
+#define FNAME 101
+
+void reverse(char*, int);
+char* getNameFileLink(char*, int);
+char* getExtenFromLink(char*, int);
 
 size_t write_data(void *ptr, size_t size, size_t nmemb, FILE *stream) {
     size_t written = fwrite(ptr, size, nmemb, stream);
@@ -11,22 +17,69 @@ void downloadLinks()
    	FILE *fp;
     	CURLcode res;
 	char path[5000];
-    	char *url = "https://stackoverflow.com/";
-    	char outfilename[FILENAME_MAX] = "C:\\bbb.txt";
-    	curl = curl_easy_init();
-    	//for (int i = 0; i < ; ++i) {
-		sprintf(path, "%s/%s", DOWNDIR, outfilename);
-        	fp = fopen(path,"wb");
-        	curl_easy_setopt(curl, CURLOPT_URL, url);
-        	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data);
-        	curl_easy_setopt(curl, CURLOPT_WRITEDATA, fp);
+    	//"https://stackoverflow.com/"
+	char *test_url = "https://qwerty/text.txt/";
+	curl = curl_easy_init();
+	//for (int i = 0; i < ; ++i) {
+		int len_url = strlen(test_url);
+		
+		char* exten_file = getExtenFromLink(test_url, len_url);
+		if (strcmp(exten_file, "html") != 0)
+			reverse(exten_file, strlen(exten_file));
+
+		char *name_file = getNameFileLink(test_url, len_url);
+		sprintf(path, "%s/%s.%s", DOWNDIR, name_file, exten_file);
+
+		fp = fopen(path,"wb");
+		curl_easy_setopt(curl, CURLOPT_URL, test_url);
+		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data);
+		curl_easy_setopt(curl, CURLOPT_WRITEDATA, fp);
         	res = curl_easy_perform(curl);
-        	
+      
         	curl_easy_cleanup(curl);
-        	fclose(fp);
+        	fclose(fp);	
 	//}
 }
 
+char* getNameFileLink(char* url, int len_url)
+{
+	int index_name_file = 0;
+	char* name_file = (char*)malloc(sizeof(char) * FNAME);
+	for (int index_url = strchr(url, '/') - url + 2; url[index_url] != '/'; ++index_url, ++index_name_file)
+	{
+		name_file[index_name_file] = url[index_url];
+	}
+	name_file[index_name_file++] = '\0';
+	return name_file;
+}
+
+
+void reverse(char* str, int len)
+{
+	char tmp;
+	for (int start_index = 0, end_index = len - 1; start_index  < end_index; ++start_index, --end_index) {
+		tmp = str[start_index];
+		str[start_index] = str[end_index];
+		str[end_index] = tmp;
+	}
+}
+
+char* getExtenFromLink(char* url, int len_url)
+{
+	int index_exten = 0;
+	char* file_exten = (char*)malloc(sizeof(char) * FEXTEN);
+	for (int index_url = len_url - 1; url[index_url] != '.'; --index_url) 
+	{
+		if (url[index_url] == '/') {
+			free(file_exten);
+			return "html";	
+		}
+		file_exten[index_exten++] = url[index_url];
+	}
+	file_exten[index_exten++] = '\0';
+	//reverse(file_exten, index_exten);
+	return file_exten;
+}
 
 int strHrefIndex(char* strFromHTML, char* href)
 {
