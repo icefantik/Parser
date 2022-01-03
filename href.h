@@ -14,7 +14,7 @@
 #define TAGHREF "href"
 #define DOWNDIR "Download"
 
-void downloadLinks();
+void downloadLinks(char**, int);
 int strHrefIndex(char*, char*);
 void rdHtmlFile(char*);
 char* fexten(char*);

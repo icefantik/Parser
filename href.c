@@ -11,34 +11,31 @@ size_t write_data(void *ptr, size_t size, size_t nmemb, FILE *stream) {
     return written;
 }
 
-void downloadLinks() 
+void downloadLinks(char **links, int len_links)
 {
 	CURL *curl;
    	FILE *fp;
     	CURLcode res;
 	char path[5000];
-    	//"https://stackoverflow.com/"
-	char *test_url = "https://qwerty/text.txt/";
+	char *exten_file, *name_file;
 	curl = curl_easy_init();
-	//for (int i = 0; i < ; ++i) {
-		int len_url = strlen(test_url);
-		
-		char* exten_file = getExtenFromLink(test_url, len_url);
+	for (int i = 0, len_url; i < len_links; ++i) {
+		len_url = strlen(links[i]);
+		exten_file = getExtenFromLink(links[i], len_url);
 		if (strcmp(exten_file, "html") != 0)
 			reverse(exten_file, strlen(exten_file));
-
-		char *name_file = getNameFileLink(test_url, len_url);
+		
+		name_file = getNameFileLink(links[i], len_url);
 		sprintf(path, "%s/%s.%s", DOWNDIR, name_file, exten_file);
-
+		
 		fp = fopen(path,"wb");
-		curl_easy_setopt(curl, CURLOPT_URL, test_url);
+		curl_easy_setopt(curl, CURLOPT_URL, links[i]);
 		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data);
 		curl_easy_setopt(curl, CURLOPT_WRITEDATA, fp);
-        	res = curl_easy_perform(curl);
-      
-        	curl_easy_cleanup(curl);
-        	fclose(fp);	
-	//}
+        	res = curl_easy_perform(curl);	
+		fclose(fp);		
+	}
+	curl_easy_cleanup(curl);
 }
 
 char* getNameFileLink(char* url, int len_url)
@@ -117,9 +114,12 @@ void rdHtmlFile(char* htmlName)
 
 char* fexten(char* nameFile)
 {
+	int index_fexten = 0;
 	char* fext = malloc((HTLEXT + 1) * sizeof(char));
-	for (int i = strlen(nameFile) - 1, j = 0; nameFile[i] != '.' && i >= 0; --i, ++j) {
-		fext[j] = nameFile[i];
+	for (int i = strlen(nameFile) - 1; nameFile[i] != '.' && i >= 0; --i, ++index_fexten) {
+		fext[index_fexten] = nameFile[i];
 	}
+	fext[index_fexten++] = '\0';
+	reverse(fext, strlen(fext));
 	return fext;
 }
