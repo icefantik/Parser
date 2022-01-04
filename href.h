@@ -7,6 +7,7 @@
 #include <locale.h>
 #include <string.h>
 #include <curl/curl.h>
+#include "flinks.h"
 
 #define LENHTML 20000
 #define MAXLINK 500
