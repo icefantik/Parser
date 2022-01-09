@@ -3,8 +3,8 @@
 
 #include <stdio.h>
 #include <string.h>
-#define ROWLINKS 100
-#define COLUMLINKS 100
+#define ROWLINKS 1000
+#define COLUMLINKS 1001
 #define DIRLINKS "Links"
 
 typedef struct

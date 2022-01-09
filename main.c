@@ -9,8 +9,13 @@ int main()
 	
 	char path[5000];
 	sprintf(path, "%s/%s", DIRLINKS, "test.txt");
+	/*
 	data_links dt = getLinksFromFile(path);
 	
-	char *links[] = {"https://stackoverflow.com/", "https://qwerty/text.txt/"}; 
-	downloadLinks(links, 2);
+	char *links[] = {"https://stackoverflow.com/", "https://qwerty/text.txt/"};
+	for (int i = 0; i < dt.len_links; ++i) {
+		printf("%s", dt.links[i]);
+	}
+	*/
+	//downloadLinks(getLinksFromFile(path));
 }

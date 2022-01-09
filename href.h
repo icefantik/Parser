@@ -7,7 +7,7 @@
 #include <locale.h>
 #include <string.h>
 #include <curl/curl.h>
-#include "flinks.h"
+#include "flink.h"
 
 #define LENHTML 20000
 #define MAXLINK 500
@@ -15,7 +15,7 @@
 #define TAGHREF "href"
 #define DOWNDIR "Download"
 
-void downloadLinks(char**, int);
+void downloadLinks(data_links);
 int strHrefIndex(char*, char*);
 void rdHtmlFile(char*);
 char* fexten(char*);
