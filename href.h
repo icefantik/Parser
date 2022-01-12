@@ -14,6 +14,9 @@
 #define HTLEXT 5
 #define TAGHREF "href"
 #define DOWNDIR "Download"
+#define FEXTEN 101
+#define FNAME 101
+
 
 void downloadLinks(data_links);
 int strHrefIndex(char*, char*);

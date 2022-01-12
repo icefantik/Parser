@@ -1,6 +1,4 @@
 #include "href.h"
-#define FEXTEN 101
-#define FNAME 101
 
 void reverse(char*, int);
 char* getNameFileLink(char*, int);
@@ -13,45 +11,57 @@ size_t write_data(void *ptr, size_t size, size_t nmemb, FILE *stream) {
 
 void downloadLinks(data_links dt_links)
 {
-	printf("1.\n");
 	//printf("%d\n%s\n", dt_links.len_links, dt_links.links[0]);
 	CURL *curl;
    	FILE *fp;
     	CURLcode res;
 	char path[5000];
 	char *exten_file, *name_file;
+	//char *exten_file = (char*)malloc(sizeof(char) * 1000);
+       	//char *name_file = (char*)malloc(sizeof(char) * 1000); 
 	curl = curl_easy_init();
 	for (int i = 0, len_url; i < dt_links.len_links; ++i) {
 		len_url = strlen(dt_links.links[i]);
-		
-		exten_file = getExtenFromLink(dt_links.links[i], len_url);
-		/*
-		//if (strcmp(exten_file, "html") != 0)
-		//	reverse(exten_file, strlen(exten_file));
-		
+		exten_file = getExtenFromLink(dt_links.links[i], len_url);	
 		name_file = getNameFileLink(dt_links.links[i], len_url);
 		sprintf(path, "%s/%s.%s", DOWNDIR, name_file, exten_file);
-	
-		fp = fopen(path,"wb");
+
+		//printf("%ld\n%ld\n", sizeof(exten_file), sizeof(name_file));
+		//memset(exten_file, 0, sizeof(exten_file));
+		//free(exten_file);
+		//memset(name_file, 0, sizeof(name_file));
+		//free(exten_file);
+		//free(name_file); 
+			
+		fp = fopen(path,"w+");
 		curl_easy_setopt(curl, CURLOPT_URL, dt_links.links[i]);
 		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data);
 		curl_easy_setopt(curl, CURLOPT_WRITEDATA, fp);
-        	res = curl_easy_perform(curl);	
-		fclose(fp);
-		*/		
+        	res = curl_easy_perform(curl);
+			
+		if (fp == NULL) {	
+			printf("Couldn't open %s: Segmentation faild file not create/open.\n", path);
+		} else {
+			fclose(fp);
+		}
+					
 	}
+	printf("\nSuccessful!\n");
 	curl_easy_cleanup(curl);
 }
 
 char* getNameFileLink(char* url, int len_url)
 {
-	int index_name_file = 0;
-	char* name_file = (char*)malloc(sizeof(char) * FNAME);
-	for (int index_url = strchr(url, '/') - url + 2; url[index_url] != '/' && index_url >= 0; ++index_url, ++index_name_file)
+	int index_name_file = 0, index_slesh = strchr(url, '/') - url + 1;
+	char *name_file = (char*)malloc(sizeof(char) * 1000000);
+	//printf("%d %s\n", index_slesh, url);
+	for (int index_url = strchr(url, '/') - url + 1; url[index_url] != '/' || index_url < len_url; ++index_url, ++index_name_file)
 	{
 		name_file[index_name_file] = url[index_url];
 	}
-	name_file[index_name_file++] = '\0';
+	name_file[++index_name_file] = '\0';
+	//printf("Name file: %s\n", name_file);
+	//printf("%s\n", name_file);
 	return name_file;
 }
 
@@ -68,7 +78,6 @@ void reverse(char* str, int len)
 
 char* getExtenFromLink(char* url, int len_url)
 {
-	printf("%s\n", url);
 	int index_exten = 0;
 	char* file_exten = (char*)malloc(sizeof(char) * FEXTEN * 2);
 	for (int index_url = len_url - 1; url[index_url] != '.' && index_url >= 0; --index_url) 
@@ -82,7 +91,7 @@ char* getExtenFromLink(char* url, int len_url)
 	}
 	file_exten[index_exten] = '\0';
 	reverse(file_exten, index_exten);
-	printf(": %s\n", file_exten);
+	//printf("%s\n", file_exten);
 	return file_exten;
 }
 
