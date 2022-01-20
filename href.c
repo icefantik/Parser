@@ -3,6 +3,7 @@
 void reverse(char*, int);
 char* getNameFileLink(char*, int);
 char* getExtenFromLink(char*, int);
+char *subStr(char*, int, int, char*);
 
 size_t write_data(void *ptr, size_t size, size_t nmemb, FILE *stream) {
     size_t written = fwrite(ptr, size, nmemb, stream);
@@ -11,14 +12,11 @@ size_t write_data(void *ptr, size_t size, size_t nmemb, FILE *stream) {
 
 void downloadLinks(data_links dt_links)
 {
-	//printf("%d\n%s\n", dt_links.len_links, dt_links.links[0]);
 	CURL *curl;
    	FILE *fp;
     	CURLcode res;
 	char path[5000];
-	char *exten_file, *name_file;
-	//char *exten_file = (char*)malloc(sizeof(char) * 1000);
-       	//char *name_file = (char*)malloc(sizeof(char) * 1000); 
+	char *exten_file, *name_file; 
 	curl = curl_easy_init();
 	for (int i = 0, len_url; i < dt_links.len_links; ++i) {
 		len_url = strlen(dt_links.links[i]);
@@ -32,7 +30,7 @@ void downloadLinks(data_links dt_links)
 		//memset(name_file, 0, sizeof(name_file));
 		//free(exten_file);
 		//free(name_file); 
-			
+				
 		fp = fopen(path,"w+");
 		curl_easy_setopt(curl, CURLOPT_URL, dt_links.links[i]);
 		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data);
@@ -43,8 +41,7 @@ void downloadLinks(data_links dt_links)
 			printf("Couldn't open %s: Segmentation faild file not create/open.\n", path);
 		} else {
 			fclose(fp);
-		}
-					
+		}			
 	}
 	printf("\nSuccessful!\n");
 	curl_easy_cleanup(curl);
@@ -52,19 +49,23 @@ void downloadLinks(data_links dt_links)
 
 char* getNameFileLink(char* url, int len_url)
 {
-	int index_name_file = 0, index_slesh = strchr(url, '/') - url + 1;
-	char *name_file = (char*)malloc(sizeof(char) * 1000000);
-	//printf("%d %s\n", index_slesh, url);
-	for (int index_url = strchr(url, '/') - url + 1; url[index_url] != '/' || index_url < len_url; ++index_url, ++index_name_file)
-	{
-		name_file[index_name_file] = url[index_url];
-	}
-	name_file[++index_name_file] = '\0';
-	//printf("Name file: %s\n", name_file);
-	//printf("%s\n", name_file);
-	return name_file;
+	int index_slesh = strchr(url, '/') - url + 1;
+	char dest[5001];
+	char *tmp = subStr(url, index_slesh, len_url, dest);	
+	return tmp;
 }
 
+char *subStr(char* input, int offset, int len, char* dest)
+{
+	/*
+	int input_len = strlen(input);
+	if (offset + len > input_len) {
+		return NULL;
+	}
+	*/
+	strncpy(dest, input + offset, len);
+	return dest;
+}
 
 void reverse(char* str, int len)
 {
@@ -82,7 +83,6 @@ char* getExtenFromLink(char* url, int len_url)
 	char* file_exten = (char*)malloc(sizeof(char) * FEXTEN * 2);
 	for (int index_url = len_url - 1; url[index_url] != '.' && index_url >= 0; --index_url) 
 	{
-		//printf("%d %c\n", index_url, url[index_url]);
 		if (url[index_url] == '/') {
 			free(file_exten);
 			return "html";	
@@ -116,7 +116,6 @@ void rdHtmlFile(char* htmlName)
 	char strFromHTML[LENHTML];
 	data_links dt_links;
 	dt_links.len_links = 0;
-	//dt_links.links = (char**)malloc(ROWLINKS * COLUMLINKS * sizeof(char*));
 	while(fgets(strFromHTML, sizeof(strFromHTML), file))
 	{
 		if (strstr(strFromHTML, TAGHREF) != NULL) {
@@ -126,7 +125,7 @@ void rdHtmlFile(char* htmlName)
 				link[indexLink++] = strFromHTML[hrefStartIndex++];
 			}
 			strcpy(dt_links.links[dt_links.len_links++], link);
-			printf("%s\n", link);
+			//printf("%s\n", link);
 		}
 	}
 	fclose(file);
