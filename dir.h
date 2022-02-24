@@ -9,8 +9,11 @@
 #include <stdio.h>
 #include <sys/stat.h>
 
+#define DIRLINKS "Links"
 #define MAXDIR 500
+#define CWDDIR 255
+#define MAXPATH 901
 
-void selcFile();
+void selcFile(char*, char*);
 
 #endif

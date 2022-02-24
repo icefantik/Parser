@@ -4,6 +4,8 @@ void reverse(char*, int);
 char* getNameFileLink(char*, int);
 char* getExtenFromLink(char*, int);
 char *subStr(char*, int, int, char*);
+void dwlLink(char *path, char *url);
+void rplcSlshLnk(char *name_file);
 
 size_t write_data(void *ptr, size_t size, size_t nmemb, FILE *stream) {
     size_t written = fwrite(ptr, size, nmemb, stream);
@@ -12,42 +14,49 @@ size_t write_data(void *ptr, size_t size, size_t nmemb, FILE *stream) {
 
 void downloadLinks(data_links dt_links)
 {
-	CURL *curl;
-   	FILE *fp;
-    	CURLcode res;
 	char path[5000];
 	char *exten_file, *name_file; 
-	curl = curl_easy_init();
 	for (int i = 0, len_url; i < dt_links.len_links; ++i) {
 		len_url = strlen(dt_links.links[i]);
 		exten_file = getExtenFromLink(dt_links.links[i], len_url);	
 		name_file = getNameFileLink(dt_links.links[i], len_url);
-		sprintf(path, "%s/%s.%s", DOWNDIR, name_file, exten_file);
+		rplcSlshLnk(name_file);
 
-		//printf("%ld\n%ld\n", sizeof(exten_file), sizeof(name_file));
-		//memset(exten_file, 0, sizeof(exten_file));
-		//free(exten_file);
-		//memset(name_file, 0, sizeof(name_file));
-		//free(exten_file);
-		//free(name_file); 
-				
-		fp = fopen(path,"w+");
-		curl_easy_setopt(curl, CURLOPT_URL, dt_links.links[i]);
-		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data);
-		curl_easy_setopt(curl, CURLOPT_WRITEDATA, fp);
-        	res = curl_easy_perform(curl);
-			
-		if (fp == NULL) {	
-			printf("Couldn't open %s: Segmentation faild file not create/open.\n", path);
-		} else {
-			fclose(fp);
-		}			
+		sprintf(path, "%s/%s.%s", DOWNDIR, name_file, exten_file);				 dwlLink(path, dt_links.links[i]);		
 	}
-	printf("\nSuccessful!\n");
-	curl_easy_cleanup(curl);
 }
 
-char* getNameFileLink(char* url, int len_url)
+void dwlLink(char *path, char *url)
+{
+	CURL *curl;
+        CURLcode res;
+	curl = curl_easy_init();
+	if (curl)
+	{
+		FILE *fp = fopen(path,"wb");
+        	curl_easy_setopt(curl, CURLOPT_URL, url);
+		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data);
+        	curl_easy_setopt(curl, CURLOPT_WRITEDATA, fp);
+        	res = curl_easy_perform(curl);
+        	if (fp == NULL) {
+        		printf("Couldn't open %s: Segmentation faild file not create/open.\n", path);
+        	} else {
+        		fclose(fp);
+        	}
+		curl_easy_cleanup(curl);
+	}
+}
+
+void rplcSlshLnk(char *name_file)
+{
+	for (int index_name = 0; name_file[index_name] != '\0'; ++index_name) {
+		if (name_file[index_name] == '/') {
+			name_file[index_name] = '\\';
+		}	
+	}
+}
+
+char *getNameFileLink(char* url, int len_url)
 {
 	int index_slesh = strchr(url, '/') - url + 1;
 	char dest[5001];
@@ -112,6 +121,7 @@ int strHrefIndex(char* strFromHTML, char* href)
 
 void rdHtmlFile(char* htmlName)
 {
+	printf("%s\n", htmlName);
 	FILE *file = fopen(htmlName, "r");
 	char strFromHTML[LENHTML];
 	data_links dt_links;

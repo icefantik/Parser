@@ -5,7 +5,7 @@
 #include <string.h>
 #define ROWLINKS 1000
 #define COLUMLINKS 1001
-#define DIRLINKS "Links"
+//#define DIRLINKS "Links"
 
 typedef struct
 {
